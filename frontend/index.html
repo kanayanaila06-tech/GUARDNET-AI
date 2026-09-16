@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GuardNet-AI</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                🛡️
+            </div>
+
+            <div class="brand-text">
+                <h1>GuardNet-AI</h1>
+                <span>Digital Safety System</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <button
+                class="nav-btn active"
+                data-page="dashboardPage"
+                onclick="showPage('dashboardPage', this)"
+            >
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </button>
+
+
+            <button
+                class="nav-btn"
+                data-page="analysisPage"
+                onclick="showPage('analysisPage', this)"
+            >
+                <span class="nav-icon">🔍</span>
+                <span>Analisis Content</span>
+            </button>
+
+
+            <button
+                class="nav-btn"
+                data-page="resultPage"
+                onclick="showPage('resultPage', this)"
+            >
+                <span class="nav-icon">📊</span>
+                <span>Hasil Analisis</span>
+            </button>
+
+
+            <button
+                class="nav-btn"
+                data-page="casesPage"
+                onclick="showPage('casesPage', this)"
+            >
+                <span class="nav-icon">📁</span>
+                <span>Daftar Kasus</span>
+            </button>
+
+
+            <button
+                class="nav-btn"
+                data-page="reportsPage"
+                onclick="showPage('reportsPage', this)"
+            >
+                <span class="nav-icon">📋</span>
+                <span>Pelaporan</span>
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-security">
+
+                <span class="security-dot"></span>
+
+                <div>
+                    <strong>System Active</strong>
+                    <small>AI Detection Ready</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    class="hamburger"
+                    id="hamburgerBtn"
+                    onclick="toggleSidebar()"
+                    aria-label="Menu"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="topbar-label">
+                        GUARDNET-AI
+                    </span>
+
+                    <h2 id="pageTitle">
+                        Dashboard
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <div
+                    id="connectionStatus"
+                    class="connection-status"
+                >
+
+                    <span class="connection-dot"></span>
+
+                    Backend Connected
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             DASHBOARD
+             ================================================= -->
+        <section
+            id="dashboardPage"
+            class="page active"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        OVERVIEW
+                    </span>
+
+                    <h1>Dashboard</h1>
+
+                    <p>
+                        Pantau aktivitas deteksi dan kasus
+                        keamanan digital secara terpusat.
+                    </p>
+
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="showPage('analysisPage')"
+                >
+                    + Analisis Content
+                </button>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        📁
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Total Kasus</span>
+
+                        <strong id="totalCases">
+                            0
+                        </strong>
+
+                        <small>
+                            Semua kasus terdeteksi
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon red">
+                        ⚠️
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Risiko Tinggi</span>
+
+                        <strong id="highRisk">
+                            0
+                        </strong>
+
+                        <small>
+                            Perlu perhatian
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">
+                        ◉
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Risiko Sedang</span>
+
+                        <strong id="mediumRisk">
+                            0
+                        </strong>
+
+                        <small>
+                            Perlu pemantauan
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Risiko Rendah</span>
+
+                        <strong id="lowRisk">
+                            0
+                        </strong>
+
+                        <small>
+                            Aktivitas normal
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DASHBOARD CONTENT -->
+            <div class="dashboard-grid">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="card-label">
+                                SYSTEM
+                            </span>
+
+                            <h3>Status Sistem</h3>
+
+                        </div>
+
+                        <span class="status-badge active">
+                            ACTIVE
+                        </span>
+
+                    </div>
+
+
+                    <div class="system-status">
+
+                        <div class="system-row">
+
+                            <span>
+
+                                <i class="status-indicator green"></i>
+
+                                Backend API
+
+                            </span>
+
+                            <strong>
+                                Online
+                            </strong>
+
+                        </div>
+
+
+                        <div class="system-row">
+
+                            <span>
+
+                                <i class="status-indicator green"></i>
+
+                                AI Analyzer
+
+                            </span>
+
+                            <strong>
+                                Ready
+                            </strong>
+
+                        </div>
+
+
+                        <div class="system-row">
+
+                            <span>
+
+                                <i class="status-indicator green"></i>
+
+                                Evidence System
+
+                            </span>
+
+                            <strong>
+                                Active
+                            </strong>
+
+                        </div>
+
+
+                        <div class="system-row">
+
+                            <span>
+
+                                <i class="status-indicator green"></i>
+
+                                Reporting
+
+                            </span>
+
+                            <strong>
+                                Ready
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="card-label">
+                                WORKFLOW
+                            </span>
+
+                            <h3>Alur Deteksi</h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="workflow">
+
+                        <div class="workflow-step">
+
+                            <span>01</span>
+
+                            <div>
+
+                                <strong>
+                                    Content
+                                </strong>
+
+                                <small>
+                                    Upload / input content
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="workflow-line"></div>
+
+
+                        <div class="workflow-step">
+
+                            <span>02</span>
+
+                            <div>
+
+                                <strong>
+                                    AI Detection
+                                </strong>
+
+                                <small>
+                                    OCR, text & visual
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="workflow-line"></div>
+
+
+                        <div class="workflow-step">
+
+                            <span>03</span>
+
+                            <div>
+
+                                <strong>
+                                    Validation
+                                </strong>
+
+                                <small>
+                                    Payment & evidence
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="workflow-line"></div>
+
+
+                        <div class="workflow-step">
+
+                            <span>04</span>
+
+                            <div>
+
+                                <strong>
+                                    Reporting
+                                </strong>
+
+                                <small>
+                                    Case siap dilaporkan
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ANALYSIS
+             ================================================= -->
+        <section
+            id="analysisPage"
+            class="page"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        AI DETECTION
+                    </span>
+
+                    <h1>Analisis Content</h1>
+
+                    <p>
+                        Analisis konten untuk mendeteksi
+                        indikasi aktivitas judi online.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analysis-layout">
+
+                <!-- FORM -->
+                <div class="card analysis-form-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="card-label">
+                                INPUT
+                            </span>
+
+                            <h3>Content Analysis</h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="platform">
+                                Platform
+                            </label>
+
+                            <select id="platform">
+
+                                <option value="instagram">
+                                    Instagram
+                                </option>
+
+                                <option value="facebook">
+                                    Facebook
+                                </option>
+
+                                <option value="tiktok">
+                                    TikTok
+                                </option>
+
+                                <option value="twitter">
+                                    X / Twitter
+                                </option>
+
+                                <option value="youtube">
+                                    YouTube
+                                </option>
+
+                                <option value="other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="contentType">
+                                Content Type
+                            </label>
+
+                            <select id="contentType">
+
+                                <option value="image">
+                                    Image
+                                </option>
+
+                                <option value="video">
+                                    Video
+                                </option>
+
+                                <option value="text">
+                                    Text
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contentUrl">
+                            Content URL
+                        </label>
+
+                        <input
+                            type="url"
+                            id="contentUrl"
+                            placeholder="https://www.instagram.com/..."
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contentFile">
+                            Upload Content
+                        </label>
+
+                        <div class="upload-box">
+
+                            <input
+                                type="file"
+                                id="contentFile"
+                                accept="image/*,video/*"
+                            >
+
+                            <div class="upload-content">
+
+                                <div class="upload-icon">
+                                    ↑
+                                </div>
+
+                                <strong>
+                                    Pilih file content
+                                </strong>
+
+                                <span>
+                                    JPG, PNG, WEBP, MP4
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="preview"
+                        class="preview-box hidden"
+                    ></div>
+
+
+                    <div class="form-group">
+
+                        <label for="detectedText">
+
+                            Detected Text
+
+                            <span class="optional">
+                                Opsional
+                            </span>
+
+                        </label>
+
+                        <textarea
+                            id="detectedText"
+                            rows="5"
+                            placeholder="Masukkan teks yang ingin dianalisis..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="analysis-action">
+
+                        <button
+                            id="analyzeButton"
+                            class="btn btn-primary btn-large"
+                            onclick="analyzeFullContent()"
+                        >
+                            🔍 Analisis Content
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="loading"
+                        class="loading hidden"
+                    >
+
+                        <div class="loading-spinner"></div>
+
+                        <div>
+
+                            <strong>
+                                Sedang menganalisis...
+                            </strong>
+
+                            <span>
+                                Mohon tunggu beberapa saat.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="errorBox"
+                        class="error-box hidden"
+                    ></div>
+
+                </div>
+
+
+                <!-- INFO -->
+                <div class="card analysis-info-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="card-label">
+                                DETECTION
+                            </span>
+
+                            <h3>Metode Analisis</h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detection-method">
+
+                        <div class="method-item">
+
+                            <div class="method-icon">
+                                T
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Text Analysis
+                                </strong>
+
+                                <p>
+                                    Mendeteksi kata dan pola
+                                    yang berkaitan dengan
+                                    aktivitas judi online.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="method-item">
+
+                            <div class="method-icon">
+                                OCR
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    OCR Detection
+                                </strong>
+
+                                <p>
+                                    Mengekstraksi teks dari
+                                    gambar untuk dianalisis.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="method-item">
+
+                            <div class="method-icon">
+                                AI
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Visual Analysis
+                                </strong>
+
+                                <p>
+                                    Menganalisis karakteristik
+                                    visual content.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="method-item">
+
+                            <div class="method-icon">
+                                $
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Payment Detection
+                                </strong>
+
+                                <p>
+                                    Mengidentifikasi informasi
+                                    pembayaran yang terdeteksi.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RESULT
+             ================================================= -->
+        <section
+            id="resultPage"
+            class="page"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ANALYSIS RESULT
+                    </span>
+
+                    <h1>Hasil Analisis</h1>
+
+                    <p>
+                        Ringkasan hasil analisis content terakhir.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div
+                    id="riskBox"
+                    class="result-risk"
+                >
+
+                    <div class="risk-main">
+
+                        <span class="risk-caption">
+                            RISK LEVEL
+                        </span>
+
+                        <strong id="riskLevel">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="risk-score">
+
+                        <span>
+                            Risk Score
+                        </span>
+
+                        <strong id="score">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="result-info-grid">
+
+                    <div class="result-info-item">
+
+                        <span>
+                            Case ID
+                        </span>
+
+                        <strong id="caseId">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="result-info-item">
+
+                        <span>
+                            Content ID
+                        </span>
+
+                        <strong id="contentId">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="result-info-item">
+
+                        <span>
+                            Platform
+                        </span>
+
+                        <strong id="resultPlatform">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="result-info-item">
+
+                        <span>
+                            Content Type
+                        </span>
+
+                        <strong id="resultContentType">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="latestPaymentPanel"
+                    class="latest-payment-panel hidden"
+                ></div>
+
+
+                <div class="detail-section">
+
+                    <div class="section-title">
+
+                        <span>
+                            🚨
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                Indikator Terdeteksi
+                            </h3>
+
+                            <p>
+                                Indikator yang ditemukan oleh sistem.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="indicatorList"
+                        class="indicator-list"
+                    >
+
+                        <div class="empty-state">
+                            Belum ada indikator.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-section">
+
+                    <div class="section-title">
+
+                        <span>
+                            📝
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                OCR Result
+                            </h3>
+
+                            <p>
+                                Teks yang berhasil diekstraksi.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <pre
+                        id="ocrResult"
+                        class="ocr-result"
+                    >Belum ada hasil OCR.</pre>
+
+                </div>
+
+
+                <div class="detail-section">
+
+                    <div class="section-title">
+
+                        <span>
+                            💡
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                Deskripsi
+                            </h3>
+
+                            <p>
+                                Penjelasan hasil analisis.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="description"
+                        class="description-box"
+                    >
+                        Belum ada hasil analisis.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CASES
+             ================================================= -->
+        <section
+            id="casesPage"
+            class="page"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        CASE MANAGEMENT
+                    </span>
+
+                    <h1>Daftar Kasus</h1>
+
+                    <p>
+                        Daftar kasus yang berhasil dianalisis
+                        oleh GuardNet-AI.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="refreshCases"
+                    class="btn btn-secondary"
+                    onclick="loadCases()"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            CASES
+                        </span>
+
+                        <h3>
+                            Kasus Terdeteksi
+                        </h3>
+
+                    </div>
+
+
+                    <span
+                        id="caseCountBadge"
+                        class="count-badge"
+                    >
+                        0 kasus
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="caseList"
+                    class="case-list"
+                >
+
+                    <div class="empty-state large">
+                        Belum ada kasus.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REPORTS
+             ================================================= -->
+        <section
+            id="reportsPage"
+            class="page"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        REPORTING CENTER
+                    </span>
+
+                    <h1>Pelaporan</h1>
+
+                    <p>
+                        Kelola situs dan kasus yang telah
+                        terdeteksi serta siap untuk pelaporan.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="refreshReports"
+                    class="btn btn-secondary"
+                    onclick="loadReports()"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <!-- REPORT STAT -->
+            <div class="report-summary-grid">
+
+                <div class="report-summary-card">
+
+                    <span class="summary-icon">
+                        📋
+                    </span>
+
+                    <div>
+
+                        <span>
+                            Total Laporan
+                        </span>
+
+                        <strong id="reportTotal">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="report-summary-card high">
+
+                    <span class="summary-icon">
+                        🔴
+                    </span>
+
+                    <div>
+
+                        <span>
+                            Risiko Tinggi
+                        </span>
+
+                        <strong id="reportHigh">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="report-summary-card medium">
+
+                    <span class="summary-icon">
+                        🟠
+                    </span>
+
+                    <div>
+
+                        <span>
+                            Risiko Sedang
+                        </span>
+
+                        <strong id="reportMedium">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="report-summary-card payment">
+
+                    <span class="summary-icon">
+                        💳
+                    </span>
+
+                    <div>
+
+                        <span>
+                            Payment Tervalidasi
+                        </span>
+
+                        <strong id="reportPayment">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORT LIST -->
+            <div class="card report-container">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            REPORT LIST
+                        </span>
+
+                        <h3>
+                            Daftar Pelaporan
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="reportList"
+                    class="report-list"
+                >
+
+                    <div class="empty-state large">
+                        Belum ada laporan.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REPORT DETAIL PAGE
+             ================================================= -->
+        <section
+            id="reportDetailPage"
+            class="page"
+        >
+
+            <div class="page-heading report-detail-page-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        REPORT DETAIL
+                    </span>
+
+                    <h1>
+                        Detail Laporan
+                    </h1>
+
+                    <p>
+                        Informasi lengkap laporan, indikator,
+                        payment dan evidence.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- BACK BUTTON -->
+            <div class="report-detail-back">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    onclick="backToReports()"
+                >
+                    ← Kembali ke Pelaporan
+                </button>
+
+            </div>
+
+
+            <!-- DETAIL CONTENT -->
+            <div
+                id="reportDetailContent"
+                class="report-detail-content"
+            >
+
+                <div class="card">
+
+                    <div class="empty-state large">
+                        Pilih laporan untuk melihat detail.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     DETAIL MODAL
+     
+     Tetap dipertahankan agar tidak merusak fungsi JavaScript
+     lama yang mungkin masih menggunakan elemen ini.
+     ========================================================= -->
+
+<div
+    id="detailModal"
+    class="detail-modal hidden"
+>
+
+    <div
+        class="detail-modal-overlay"
+        onclick="closeDetailModal()"
+    ></div>
+
+
+    <div class="detail-modal-box">
+
+        <div class="detail-modal-header">
+
+            <div>
+
+                <span class="detail-modal-label">
+                    DETAIL LAPORAN
+                </span>
+
+                <h2 id="modalDetailTitle">
+                    Detail Kasus
+                </h2>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="detail-modal-close"
+                onclick="closeDetailModal()"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            id="modalDetailContent"
+            class="detail-modal-content"
+        >
+
+            <div class="modal-empty">
+                Tidak ada detail.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+
+<!-- =========================================================
+     REPORT DETAIL NAVIGATION
+     
+     Bagian ini hanya membantu navigasi halaman detail.
+     Tidak mengubah fungsi halaman lainnya.
+     ========================================================= -->
+
+<script>
+
+    function backToReports() {
+
+        showPage('reportsPage');
+
+    }
+
+
+    /*
+     * Jika app.js memiliki fungsi openReportDetail(),
+     * fungsi tersebut akan diarahkan ke halaman detail.
+     *
+     * Data detail tetap dirender oleh renderReportDetail()
+     * yang sudah ada di app.js jika tersedia.
+     */
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const originalOpenReportDetail =
+            window.openReportDetail;
+
+        if (typeof originalOpenReportDetail === "function") {
+
+            window.openReportDetail = async function (reportId) {
+
+                showPage("reportDetailPage");
+
+                const detailContainer =
+                    document.getElementById(
+                        "reportDetailContent"
+                    );
+
+                if (detailContainer) {
+
+                    detailContainer.innerHTML = `
+                        <div class="card">
+                            <div class="detail-loading">
+                                Memuat detail laporan...
+                            </div>
+                        </div>
+                    `;
+
+                }
+
+                try {
+
+                    /*
+                     * Gunakan fungsi renderReportDetail
+                     * yang sudah ada jika tersedia.
+                     */
+
+                    if (
+                        typeof window.renderReportDetail ===
+                        "function"
+                    ) {
+
+                        await window.renderReportDetail(
+                            reportId
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Gagal membuka detail laporan:",
+                        error
+                    );
+
+                    if (detailContainer) {
+
+                        detailContainer.innerHTML = `
+                            <div class="card">
+                                <div class="detail-error">
+                                    <h3>
+                                        Gagal memuat detail laporan
+                                    </h3>
+
+                                    <p>
+                                        ${error.message}
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+
+                    }
+
+                }
+
+            };
+
+        }
+
+    });
+
+</script>
+
+
+</body>
+</html>
