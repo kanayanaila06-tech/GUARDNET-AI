@@ -33,6 +33,16 @@ MODEL_NAME = "openai/clip-vit-base-patch32"
 _model = None
 _processor = None
 _model_loaded = False
+
+# ============================================================
+# DEVICE
+# ============================================================
+
+DEVICE = (
+    "cuda"
+    if torch is not None and torch.cuda.is_available()
+    else "cpu"
+)
  
  
 # ============================================================
@@ -164,8 +174,22 @@ def load_visual_model() -> bool:
             MODEL_NAME
         )
  
+                # Gunakan RTX 3050 jika CUDA tersedia.
+        _model = _model.to(DEVICE)
+
         _model.eval()
- 
+
+        print(
+            "GUARDNET-AI VISUAL: "
+            f"Device CLIP = {DEVICE}"
+        )
+
+        if DEVICE == "cuda":
+            print(
+                "GUARDNET-AI VISUAL: "
+                f"GPU = {torch.cuda.get_device_name(0)}"
+            )
+
         _model_loaded = True
  
         print(
@@ -352,6 +376,14 @@ def calculate_prompt_scores(
         return_tensors="pt"
     )
  
+    
+    image_inputs = {
+        key: value.to(DEVICE)
+        if torch.is_tensor(value)
+        else value
+        for key, value in image_inputs.items()
+    }
+
     # ========================================================
     # TEXT INPUT
     # ========================================================
@@ -361,6 +393,13 @@ def calculate_prompt_scores(
         return_tensors="pt",
         padding=True
     )
+
+    text_inputs = {
+        key: value.to(DEVICE)
+        if torch.is_tensor(value)
+        else value
+        for key, value in text_inputs.items()
+    }
  
     # ========================================================
     # IMAGE FEATURES
@@ -781,41 +820,64 @@ def analyze_visual(
     # INDICATORS
     # ========================================================
  
+    # --------------------------------------------------------
+    # VISUAL EVIDENCE
+    # --------------------------------------------------------
+    # CLIP menghasilkan semantic similarity, bukan bukti bahwa
+    # objek judi benar-benar ada. Indikator visual hanya dikeluarkan
+    # jika sinyal relatif kuat terhadap visual normal.
     indicators = []
- 
-    if risk_level in {"medium", "high"}:
+
+    strong_slot = (
+        max_slot_score >= 0.30
+        and slot_margin >= 0.015
+    )
+
+    strong_gambling = (
+        max_gambling_score >= 0.32
+        and max_margin >= 0.015
+    )
+
+    if strong_slot or strong_gambling:
         slot_sorted = sorted(
             enumerate(slot_scores),
             key=lambda item: item[1],
             reverse=True
         )
+
         gambling_sorted = sorted(
             enumerate(gambling_scores),
             key=lambda item: item[1],
             reverse=True
         )
- 
+
         for index, similarity in slot_sorted:
-            if similarity < max_slot_score - 0.025:
+            if similarity < max_slot_score - 0.020:
                 continue
+
             indicator = SLOT_INDICATORS[index]
+
             if indicator not in indicators:
                 indicators.append(indicator)
+
             if len(indicators) >= 3:
                 break
- 
+
         for index, similarity in gambling_sorted:
-            if similarity < max_gambling_score - 0.025:
+            if similarity < max_gambling_score - 0.020:
                 continue
+
             indicator = PROMPT_INDICATORS[index]
+
             if indicator not in indicators:
                 indicators.append(indicator)
+
             if len(indicators) >= 5:
                 break
- 
-        if not indicators:
-            indicators.append("visual:gambling_content")
- 
+
+    if not indicators and risk_level in {"medium", "high"}:
+        indicators.append("visual:possible_gambling_similarity")
+
     # ========================================================
     # DESCRIPTION
     # ========================================================
@@ -833,10 +895,11 @@ def analyze_visual(
  
         description = (
             "Analisis visual menemukan "
-            "karakteristik yang menyerupai "
-            "permainan atau aktivitas perjudian "
-            "online. Hasil dapat diperkuat dengan "
-            "OCR, teks, komentar, atau ASR."
+            "kemiripan dengan karakteristik "
+            "perjudian online. Hasil visual "
+            "bersifat indikatif dan sebaiknya "
+            "diperkuat dengan OCR, teks, "
+            "komentar, atau ASR."
         )
  
     else:

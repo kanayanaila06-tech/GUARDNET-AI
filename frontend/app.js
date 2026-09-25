@@ -6,55 +6,34 @@
 
 // ============================================================
 
-
 const API_BASE_URL = "http://127.0.0.1:8000";
 
-
 let lastAnalysis = null;
-
 let reportsCache = [];
-
 let casesCache = [];
-
 let reportRefreshTimer = null;
 
-
-
 // ============================================================
-
 // HELPER
-
 // ============================================================
-
 
 const $ = (id) => document.getElementById(id);
-
-
-
 function escapeHtml(value) {
-
-
     const div = document.createElement("div");
 
-
     div.textContent = value ?? "";
-
 
     return div.innerHTML;
 
 }
 
-
-
 function formatDate(value) {
-
 
     if (!value) {
 
         return "-";
 
     }
-
 
     const date = new Date(value);
 
@@ -64,7 +43,6 @@ function formatDate(value) {
         return String(value);
 
     }
-
 
     return date.toLocaleString("id-ID", {
 
@@ -76,17 +54,13 @@ function formatDate(value) {
 
 }
 
-
-
 function riskClass(value) {
-
 
     const risk =
 
         String(value || "low")
 
             .toLowerCase();
-
 
     return [
 
@@ -104,21 +78,60 @@ function riskClass(value) {
 
 }
 
+function getReportSite(report) {
+    const site =
+        report?.site &&
+        typeof report.site === "object"
+            ? report.site
+            : {};
 
+    return {
+        content_url:
+            report?.content_url ||
+            report?.source_url ||
+            site.content_url ||
+            site.source_url ||
+            "-",
+
+        platform:
+            report?.platform ||
+            site.platform ||
+            "-",
+
+        content_type:
+            report?.content_type ||
+            site.content_type ||
+            "-"
+    };
+}
+
+
+function getReportIndicators(report) {
+    if (Array.isArray(report?.detected_indicators)) {
+        return report.detected_indicators;
+    }
+
+    if (Array.isArray(report?.indicators)) {
+        return report.indicators;
+    }
+
+    if (Array.isArray(report?.analysis?.final?.indicators)) {
+        return report.analysis.final.indicators;
+    }
+
+    return [];
+}
 
 function showError(message) {
 
 
     const box = $("errorBox");
 
-
     if (!box) {
 
         return;
 
     }
-
-
     box.textContent =
 
         message || "Terjadi kesalahan.";
@@ -128,13 +141,9 @@ function showError(message) {
 
 }
 
-
-
 function hideError() {
 
-
     const box = $("errorBox");
-
 
     if (!box) {
 
@@ -142,21 +151,15 @@ function hideError() {
 
     }
 
-
     box.textContent = "";
-
 
     box.style.display = "none";
 
 }
 
-
-
 function setLoading(active) {
 
-
     const loading = $("loading");
-
 
     const button =
 
@@ -176,15 +179,10 @@ function setLoading(active) {
 
     }
 
-
     if (button) {
 
-
         button.disabled = active;
-
-
         button.textContent =
-
             active
 
                 ? "Menganalisis..."
@@ -194,16 +192,11 @@ function setLoading(active) {
     }
 
 }
-
-
-
 async function readJson(response) {
-
 
     const text =
 
         await response.text();
-
 
     if (!text) {
 
@@ -211,15 +204,11 @@ async function readJson(response) {
 
     }
 
-
     try {
-
 
         return JSON.parse(text);
 
-
     } catch {
-
 
         return {
 
@@ -231,8 +220,6 @@ async function readJson(response) {
 
 }
 
-
-
 function setTextIfExists(
 
     id,
@@ -241,16 +228,13 @@ function setTextIfExists(
 
 ) {
 
-
     const element = $(id);
-
 
     if (!element) {
 
         return;
 
     }
-
 
     element.textContent =
 
@@ -262,32 +246,23 @@ function setTextIfExists(
 
 }
 
-
-
 // ============================================================
-
 // PAGE TITLE
-
-// ============================================================
-
+// ===========================================================
 
 const pageTitles = {
-
 
     dashboardPage:
 
         "Dashboard",
 
-
     analysisPage:
 
         "Analisis Content",
 
-
     resultPage:
 
         "Hasil Analisis",
-
 
     casesPage:
 
@@ -298,54 +273,39 @@ const pageTitles = {
 
         "Pelaporan",
 
-
     reportDetailPage:
 
         "Detail Laporan"
 
 };
 
-
-
 // ============================================================
-
 // CREATE DETAIL PAGE AUTOMATICALLY
-
 // ============================================================
-
 
 function ensureReportDetailPage() {
-
 
     let page =
 
         $("reportDetailPage");
 
-
     if (page) {
-
 
         return page;
 
     }
 
-
-
     page =
 
         document.createElement("section");
-
 
     page.id =
 
         "reportDetailPage";
 
-
     page.className =
 
         "page";
-
-
 
     page.innerHTML = `
 
@@ -359,52 +319,35 @@ function ensureReportDetailPage() {
 
     `;
 
-
-
     const main =
 
         document.querySelector(".main");
 
-
-
     if (main) {
-
 
         main.appendChild(page);
 
-
     } else {
-
 
         document.body.appendChild(page);
 
     }
 
-
-
     return page;
 
 }
 
-
-
-// ============================================================
-
+// ===========================================================
 // NAVIGATION
-
-// ============================================================
-
+// ==========================================================
 
 function openPage(pageId) {
-
 
     if (!pageId) {
 
         return;
 
     }
-
-
 
     // Pastikan halaman detail tersedia
 
@@ -416,12 +359,9 @@ function openPage(pageId) {
 
     ) {
 
-
         ensureReportDetailPage();
 
     }
-
-
 
     document
 
@@ -441,8 +381,6 @@ function openPage(pageId) {
 
         });
 
-
-
     document
 
         .querySelectorAll(".page-section")
@@ -461,8 +399,6 @@ function openPage(pageId) {
 
         });
 
-
-
     // Reset posisi halaman
 
     // BUKAN scroll ke detail.
@@ -475,22 +411,15 @@ function openPage(pageId) {
 
     });
 
-
-
     const main =
 
         document.querySelector(".main");
 
-
-
     if (main) {
-
 
         main.scrollTop = 0;
 
     }
-
-
 
     document
 
@@ -501,7 +430,6 @@ function openPage(pageId) {
         )
 
         .forEach((button) => {
-
 
             const target =
 
@@ -519,8 +447,6 @@ function openPage(pageId) {
 
                     ?.replace("#", "");
 
-
-
             button.classList.toggle(
 
                 "active",
@@ -529,19 +455,13 @@ function openPage(pageId) {
 
             );
 
-
         });
-
-
 
     const pageTitle =
 
         $("pageTitle");
 
-
-
     if (pageTitle) {
-
 
         pageTitle.textContent =
 
@@ -551,8 +471,6 @@ function openPage(pageId) {
 
     }
 
-
-
     if (
 
         pageId ===
@@ -560,28 +478,19 @@ function openPage(pageId) {
         "dashboardPage"
 
     ) {
-
-
         loadDashboard();
 
     }
-
-
 
     if (
 
         pageId ===
 
         "casesPage"
-
     ) {
-
-
         loadCases();
 
     }
-
-
 
     if (
 
@@ -591,18 +500,13 @@ function openPage(pageId) {
 
     ) {
 
-
         loadReports();
 
     }
 
-
-
     closeSidebar();
 
 }
-
-
 
 function showPage(pageId) {
 
@@ -611,17 +515,10 @@ function showPage(pageId) {
 
 }
 
-
-
 // ============================================================
-
 // SIDEBAR
-
 // ============================================================
-
-
 function closeSidebar() {
-
 
     $("sidebar")
 
@@ -629,15 +526,11 @@ function closeSidebar() {
 
         .remove("open");
 
-
-
     $("overlay")
 
         ?.classList
 
         .remove("open");
-
-
 
     $("sidebarOverlay")
 
@@ -646,19 +539,14 @@ function closeSidebar() {
         .remove("open");
 
 }
-
-
 
 function toggleSidebar() {
 
-
     $("sidebar")
 
         ?.classList
 
         .toggle("open");
-
-
 
     $("overlay")
 
@@ -676,17 +564,11 @@ function toggleSidebar() {
 
 }
 
-
-
 // ============================================================
-
 // IMAGE PREVIEW
-
 // ============================================================
-
 
 function setupImagePreview() {
-
 
     const input =
 
@@ -704,8 +586,6 @@ function setupImagePreview() {
         return;
 
     }
-
-
 
     input.addEventListener(
 
@@ -739,8 +619,6 @@ function setupImagePreview() {
 
             }
 
-
-
             if (
 
                 !file.type.startsWith(
@@ -751,11 +629,9 @@ function setupImagePreview() {
 
             ) {
 
-
                 preview.style.display =
 
                     "none";
-
 
                 showError(
 
@@ -763,40 +639,29 @@ function setupImagePreview() {
 
                 );
 
-
                 return;
 
             }
 
-
-
             hideError();
-
-
 
             const reader =
 
                 new FileReader();
 
-
-
             reader.onload =
 
                 (event) => {
 
-
                     preview.src =
 
                         event.target.result;
-
 
                     preview.style.display =
 
                         "block";
 
                 };
-
-
 
             reader.readAsDataURL(
 
@@ -809,32 +674,21 @@ function setupImagePreview() {
     );
 
 }
-
-
-
 // ============================================================
-
 // FULL MULTIMODAL ANALYSIS
-
 // ============================================================
-
 
 async function analyzeFullContent() {
-
 
     const input =
 
         $("contentFile");
 
-
     const file =
 
         input?.files?.[0];
 
-
-
     if (!file) {
-
 
         showError(
 
@@ -842,19 +696,15 @@ async function analyzeFullContent() {
 
         );
 
-
         openPage(
 
             "analysisPage"
 
         );
 
-
         return;
 
     }
-
-
 
     if (
 
@@ -866,26 +716,19 @@ async function analyzeFullContent() {
 
     ) {
 
-
         showError(
 
             "Format file harus JPG, JPEG, PNG, atau WEBP."
 
         );
 
-
         return;
 
     }
 
-
-
     hideError();
 
-
     setLoading(true);
-
-
 
     const platform =
 
@@ -893,15 +736,11 @@ async function analyzeFullContent() {
 
         "other";
 
-
-
     const contentType =
 
         $("contentType")?.value ||
 
         "image";
-
-
 
     const contentUrl =
 
@@ -913,8 +752,6 @@ async function analyzeFullContent() {
 
         "";
 
-
-
     const detectedText =
 
         $("detectedText")
@@ -925,58 +762,39 @@ async function analyzeFullContent() {
 
         "";
 
-
-
     try {
-
 
         const formData =
 
             new FormData();
 
-
-
         formData.append(
 
             "file",
-
             file,
-
             file.name
 
         );
-
-
 
         const params =
 
             new URLSearchParams();
 
-
-
         params.set(
 
             "platform",
-
             platform
 
         );
 
-
-
         params.set(
 
             "content_type",
-
             contentType
 
         );
 
-
-
         if (contentUrl) {
-
-
             params.set(
 
                 "content_url",
@@ -987,10 +805,7 @@ async function analyzeFullContent() {
 
         }
 
-
-
         if (detectedText) {
-
 
             params.set(
 
@@ -1002,15 +817,11 @@ async function analyzeFullContent() {
 
         }
 
-
-
         console.log(
 
             "GuardNet-AI: Mengirim /analyze-full..."
 
         );
-
-
 
         const response =
 
@@ -1028,8 +839,6 @@ async function analyzeFullContent() {
 
             );
 
-
-
         const data =
 
             await readJson(
@@ -1038,8 +847,6 @@ async function analyzeFullContent() {
 
             );
 
-
-
         console.log(
 
             "GuardNet-AI FULL RESULT:",
@@ -1047,8 +854,6 @@ async function analyzeFullContent() {
             data
 
         );
-
-
 
         if (!response.ok) {
 
@@ -1065,13 +870,9 @@ async function analyzeFullContent() {
 
         }
 
-
-
         lastAnalysis =
 
             data;
-
-
 
         lastAnalysis.platform =
 
@@ -1079,21 +880,15 @@ async function analyzeFullContent() {
 
             platform;
 
-
-
         lastAnalysis.content_url =
 
             data.content_url ||
 
             contentUrl;
 
-
-
         lastAnalysis.original_file_name =
 
             file.name;
-
-
 
         displayAnalysisResult(
 
@@ -1101,15 +896,11 @@ async function analyzeFullContent() {
 
         );
 
-
-
         openPage(
 
             "resultPage"
 
         );
-
-
 
         await Promise.allSettled([
 
@@ -1121,10 +912,7 @@ async function analyzeFullContent() {
 
         ]);
 
-
-
     } catch (error) {
-
 
         console.error(
 
@@ -1134,23 +922,17 @@ async function analyzeFullContent() {
 
         );
 
-
-
         showError(
 
             `Terjadi kesalahan: ${error.message}`
 
         );
 
-
-
         openPage(
 
             "analysisPage"
 
         );
-
-
 
     } finally {
 
@@ -1160,18 +942,11 @@ async function analyzeFullContent() {
     }
 
 }
-
-
-
 // ============================================================
-
 // TEXT ANALYSIS
-
 // ============================================================
-
 
 async function analyzeContent() {
-
 
     const detectedText =
 
@@ -1183,10 +958,7 @@ async function analyzeContent() {
 
         "";
 
-
-
     if (!detectedText) {
-
 
         showError(
 
@@ -3007,6 +2779,63 @@ function renderReportSummary(
 
 // ============================================================
 
+
+// ============================================================
+// REPORT PACKAGE DOWNLOAD
+// ============================================================
+async function downloadReportPackage(reportId) {
+    if (!reportId || reportId === "-") {
+        showError("Report ID tidak ditemukan.");
+        return;
+    }
+
+    try {
+        hideError();
+
+        const response = await fetch(
+            `${API_BASE_URL}/reports/${encodeURIComponent(reportId)}/package`
+        );
+
+        if (!response.ok) {
+            let message = `Gagal membuat Report Package. HTTP ${response.status}`;
+            try {
+                const data = await response.json();
+                message = data.detail || data.message || message;
+            } catch (_) {}
+            throw new Error(message);
+        }
+
+        const blob = await response.blob();
+        const disposition =
+            response.headers.get("Content-Disposition") || "";
+
+        let filename = `GuardNetAI_Report_${reportId}.zip`;
+        const filenameMatch =
+            disposition.match(/filename="?([^"]+)"?/i);
+
+        if (filenameMatch && filenameMatch[1]) {
+            filename = filenameMatch[1];
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        console.log(
+            "GuardNet-AI: Report Package berhasil di-download.",
+            filename
+        );
+    } catch (error) {
+        console.error("Report Package Error:", error);
+        showError(`Gagal download Report Package: ${error.message}`);
+    }
+}
+
 // REPORT LIST
 
 // ============================================================
@@ -3096,21 +2925,13 @@ function renderReports(
 
 
 
+            const site = getReportSite(report);
+
             const url =
-
-                report.content_url ||
-
-                report.source_url ||
-
-                "-";
-
-
+                site.content_url;
 
             const platform =
-
-                report.platform ||
-
-                "-";
+                site.platform;
 
 
 
@@ -3122,17 +2943,7 @@ function renderReports(
 
 
 
-            const indicators =
-
-                Array.isArray(
-
-                    report.detected_indicators
-
-                )
-
-                    ? report.detected_indicators
-
-                    : [];
+            const indicators = getReportIndicators(report);
 
 
 
@@ -3369,23 +3180,44 @@ function renderReports(
 
 
 
-                    <button
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
 
-                        type="button"
+                        <button
+                            type="button"
+                            class="report-package-btn"
+                            style="cursor:pointer;"
+                        >
+                            📦 Download Package
+                        </button>
 
-                        class="report-detail-btn"
+                        <button
+                            type="button"
+                            class="report-detail-btn"
+                        >
+                            Lihat Detail →
+                        </button>
 
-                    >
-
-                        Lihat Detail →
-
-                    </button>
+                    </div>
 
 
                 </div>
 
             `;
 
+
+
+            const packageButton =
+                card.querySelector(
+                    ".report-package-btn"
+                );
+
+            packageButton?.addEventListener(
+                "click",
+                (event) => {
+                    event.stopPropagation();
+                    downloadReportPackage(reportId);
+                }
+            );
 
 
             const button =
@@ -3526,17 +3358,10 @@ function renderReportDetail(
 
 
 
-    const indicators =
+    const site = getReportSite(report);
 
-        Array.isArray(
 
-            report.detected_indicators
-
-        )
-
-            ? report.detected_indicators
-
-            : [];
+    const indicators = getReportIndicators(report);
 
 
 
@@ -3718,11 +3543,7 @@ function renderReportDetail(
 
                             ${escapeHtml(
 
-                                report.content_url ||
-
-                                report.source_url ||
-
-                                "-"
+                                site.content_url
 
                             )}
 
@@ -3747,9 +3568,7 @@ function renderReportDetail(
 
                             ${escapeHtml(
 
-                                report.platform ||
-
-                                "-"
+                                site.platform
 
                             )}
 
@@ -3774,9 +3593,7 @@ function renderReportDetail(
 
                             ${escapeHtml(
 
-                                report.content_type ||
-
-                                "-"
+                                site.content_type
 
                             )}
 
@@ -4315,9 +4132,7 @@ function renderReportDetail(
                             ${escapeHtml(
 
                                 evidence.source_url ||
-
-                                report.content_url ||
-
+                                site.content_url ||
                                 "-"
 
                             )}
@@ -4343,23 +4158,24 @@ function renderReportDetail(
             ================================================= -->
 
 
-            <div class="report-detail-actions">
-
+            <div class="report-detail-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
 
                 <button
-
                     type="button"
-
                     class="back-button"
-
                     id="backToReportsButton"
-
                 >
-
                     ← Kembali ke Pelaporan
-
                 </button>
 
+                <button
+                    type="button"
+                    class="report-package-btn"
+                    id="downloadReportPackageButton"
+                    style="cursor:pointer;"
+                >
+                    📦 Download Report Package
+                </button>
 
             </div>
 
@@ -4386,17 +4202,31 @@ function renderReportDetail(
 
     if (backButton) {
 
-
         backButton.addEventListener(
-
             "click",
-
             backToReports
-
         );
 
     }
 
+    const packageButton =
+    $("downloadReportPackageButton");
+
+if (packageButton) {
+
+    packageButton.addEventListener(
+        "click",
+        () => {
+
+            downloadReportPackage(
+                report.report_id ||
+                report.id
+            );
+
+        }
+    );
+
+}
 
 
     // ========================================================
@@ -4833,19 +4663,7 @@ function filterReports(
             (report) => {
 
 
-                const indicators =
-
-                    Array.isArray(
-
-                        report.detected_indicators
-
-                    )
-
-                        ? report.detected_indicators
-
-                            .join(" ")
-
-                        : "";
+                const indicators = getReportIndicators(report).join(" ");
 
 
 
@@ -4895,9 +4713,9 @@ function filterReports(
 
                         report.case_id,
 
-                        report.platform,
+                        getReportSite(report).platform,
 
-                        report.content_url,
+                        getReportSite(report).content_url,
 
                         report.status,
 
@@ -4925,8 +4743,6 @@ function filterReports(
 
         );
 
-
-
     renderReports(
 
         filtered
@@ -4935,10 +4751,7 @@ function filterReports(
 
 }
 
-
-
 function setupReportSearch() {
-
 
     const input =
 
@@ -5017,8 +4830,6 @@ function filterCases(
 
     }
 
-
-
     const filtered =
 
         casesCache.filter(
@@ -5079,7 +4890,6 @@ function filterCases(
         );
 
 
-
     renderCases(
 
         filtered
@@ -5087,8 +4897,6 @@ function filterCases(
     );
 
 }
-
-
 
 function setupCaseSearch() {
 
@@ -5104,8 +4912,6 @@ function setupCaseSearch() {
         return;
 
     }
-
-
 
     input.addEventListener(
 
@@ -5126,14 +4932,11 @@ function setupCaseSearch() {
 
 }
 
-
-
 // ============================================================
 
 // REFRESH FUNCTIONS
 
 // ============================================================
-
 
 async function refreshDashboard() {
 
@@ -5142,16 +4945,12 @@ async function refreshDashboard() {
 
 }
 
-
-
 async function refreshCases() {
 
 
     await loadCases();
 
 }
-
-
 
 async function refreshReports() {
 
@@ -5160,14 +4959,10 @@ async function refreshReports() {
 
 }
 
-
-
 async function refreshAllData() {
 
 
     hideError();
-
-
 
     await Promise.allSettled([
 
@@ -5181,8 +4976,6 @@ async function refreshAllData() {
 
 }
 
-
-
 // ============================================================
 
 // BACKEND CONNECTION
@@ -5192,9 +4985,7 @@ async function refreshAllData() {
 
 async function checkBackendConnection() {
 
-
     try {
-
 
         const response =
 
@@ -5204,10 +4995,7 @@ async function checkBackendConnection() {
 
             );
 
-
-
         if (!response.ok) {
-
 
             throw new Error(
 
@@ -5217,19 +5005,13 @@ async function checkBackendConnection() {
 
         }
 
-
-
         console.log(
 
             "GuardNet-AI: Backend connected."
 
         );
 
-
-
         return true;
-
-
 
     } catch (error) {
 
@@ -5242,14 +5024,11 @@ async function checkBackendConnection() {
 
         );
 
-
-
         return false;
 
     }
 
 }
-
 
 
 function updateConnectionStatus(
@@ -5258,11 +5037,9 @@ function updateConnectionStatus(
 
 ) {
 
-
     const element =
 
         $("connectionStatus");
-
 
 
     if (!element) {
@@ -5271,24 +5048,17 @@ function updateConnectionStatus(
 
     }
 
-
-
     if (connected) {
-
 
         element.textContent =
 
             "● Backend Connected";
-
-
 
         element.classList.remove(
 
             "offline"
 
         );
-
-
 
         element.classList.add(
 
@@ -5300,20 +5070,15 @@ function updateConnectionStatus(
 
     } else {
 
-
         element.textContent =
 
             "● Backend Offline";
-
-
 
         element.classList.remove(
 
             "online"
 
         );
-
-
 
         element.classList.add(
 
@@ -5325,17 +5090,11 @@ function updateConnectionStatus(
 
 }
 
-
-
 // ============================================================
-
 // REPORT AUTO REFRESH
-
 // ============================================================
-
 
 function startReportAutoRefresh() {
-
 
     if (reportRefreshTimer) {
 
@@ -5348,14 +5107,11 @@ function startReportAutoRefresh() {
 
     }
 
-
-
     reportRefreshTimer =
 
         setInterval(
 
             () => {
-
 
                 const page =
 
@@ -5393,7 +5149,6 @@ function startReportAutoRefresh() {
 
 function stopReportAutoRefresh() {
 
-
     if (reportRefreshTimer) {
 
 
@@ -5403,8 +5158,6 @@ function stopReportAutoRefresh() {
 
         );
 
-
-
         reportRefreshTimer =
 
             null;
@@ -5412,8 +5165,6 @@ function stopReportAutoRefresh() {
     }
 
 }
-
-
 
 // ============================================================
 
@@ -5443,8 +5194,6 @@ function bindClick(
 
     }
 
-
-
     element.addEventListener(
 
         "click",
@@ -5455,25 +5204,17 @@ function bindClick(
 
 }
 
-
-
 // ============================================================
-
 // BUTTON COMPATIBILITY
-
 // ============================================================
-
 
 function setupButtonCompatibility() {
-
-
 
     bindClick(
 
         "dashboardBtn",
 
         () => {
-
 
             openPage(
 
@@ -5485,14 +5226,11 @@ function setupButtonCompatibility() {
 
     );
 
-
-
     bindClick(
 
         "analysisBtn",
 
         () => {
-
 
             openPage(
 
@@ -5503,8 +5241,6 @@ function setupButtonCompatibility() {
         }
 
     );
-
-
 
     bindClick(
 
@@ -5523,14 +5259,11 @@ function setupButtonCompatibility() {
 
     );
 
-
-
     bindClick(
 
         "casesBtn",
 
         () => {
-
 
             openPage(
 
@@ -5538,14 +5271,11 @@ function setupButtonCompatibility() {
 
             );
 
-
             loadCases();
 
         }
 
     );
-
-
 
     bindClick(
 
@@ -5560,7 +5290,6 @@ function setupButtonCompatibility() {
 
             );
 
-
             loadReports();
 
         }
@@ -5569,12 +5298,8 @@ function setupButtonCompatibility() {
 
 }
 
-
-
 // ============================================================
-
 // DOM READY
-
 // ============================================================
 
 
@@ -5584,34 +5309,20 @@ document.addEventListener(
 
     async () => {
 
-
-
         // ----------------------------------------------
-
         // Pastikan halaman detail tersedia
-
         // ----------------------------------------------
-
 
         ensureReportDetailPage();
 
-
-
         // ----------------------------------------------
-
         // Setup image
-
-        // ----------------------------------------------
-
+        // ---------------------------------------------
 
         setupImagePreview();
 
-
-
         // ----------------------------------------------
-
         // Navigation
-
         // ----------------------------------------------
 
 
@@ -5950,6 +5661,11 @@ window.filterCases =
 
     filterCases;
 
+
+
+window.downloadReportPackage =
+
+    downloadReportPackage;
 
 
 window.backToReports =

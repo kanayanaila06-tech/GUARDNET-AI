@@ -1,0 +1,24 @@
+{
+  "dataset": "youtube_chat_jogja_clean.csv",
+  "rows_total": 6350,
+  "rows_used": 6348,
+  "label_distribution": {
+    "0": 3161,
+    "1": 3187
+  },
+  "model": "LogisticRegression",
+  "features": {
+    "word_ngram": [
+      1,
+      2
+    ],
+    "char_ngram": [
+      3,
+      5
+    ]
+  },
+  "test_size": 0.2,
+  "random_state": 42,
+  "accuracy": 0.9992125984251968,
+  "note": "In-domain evaluation on the YouTube dataset. Do not interpret this as Instagram accuracy."
+}

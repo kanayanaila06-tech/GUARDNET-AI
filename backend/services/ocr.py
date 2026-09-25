@@ -25,6 +25,7 @@ from typing import List
  
 
 import pytesseract
+    
 
 from PIL import (
 
@@ -79,7 +80,7 @@ OCR_TIMEOUT = 20
  
 
 if os.path.exists(TESSERACT_PATH):
-
+    import pytesseract
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
 else:
@@ -89,7 +90,7 @@ else:
  
 
     if detected_tesseract:
-
+        
         pytesseract.pytesseract.tesseract_cmd = (
 
             detected_tesseract
