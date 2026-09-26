@@ -9,4 +9,4 @@ opencv-python-headless
 numpy
 joblib
 scikit-learn
-psycopg2-binary
+psycopg[binary]
