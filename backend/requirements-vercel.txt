@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+SQLAlchemy
+python-multipart
+pytesseract
+Pillow
+opencv-python-headless
+numpy
+joblib
+scikit-learn
+psycopg2-binary
