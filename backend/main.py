@@ -3970,37 +3970,34 @@ async def analyze_full(
 
 
         # ====================================================
-        # 2. VISUAL ANALYSIS
+        # 2. VISUAL ANALYSIS (BERJALAN BERSAMA OCR)
         # ====================================================
-
-        try:
-
-            visual_result = (
-                analyze_visual(
-                    image_bytes
-                )
+        # Visual analysis tidak bergantung pada OCR.
+        # Jalankan di thread agar proses visual dapat berjalan
+        # bersamaan dengan OCR server bila OCR memang diperlukan.
+        visual_task = asyncio.create_task(
+            asyncio.to_thread(
+                analyze_visual,
+                image_bytes,
             )
+        )
 
+
+        # Tunggu visual setelah OCR dimulai/selesai.
+        # OCR dan visual dapat overlap waktunya.
+        try:
+            visual_result = await visual_task
         except Exception as error:
-
             print(
                 "VISUAL ANALYSIS ERROR:",
                 error,
             )
-
             visual_result = {
-
                 "risk_level": "low",
-
                 "score": 0,
-
                 "detected_indicators": [],
-
-                "description": (
-                    "Visual analysis gagal."
-                ),
+                "description": "Visual analysis gagal.",
             }
-
 
         visual_risk = get_risk_level(
             visual_result
@@ -4049,19 +4046,9 @@ async def analyze_full(
 
 
         # ====================================================
-        # 3. IMAGE → BASE64
+        # 3. OCR
         # ====================================================
 
-        image_base64 = (
-            base64.b64encode(
-                image_bytes
-            ).decode("utf-8")
-        )
-
-
-        # ====================================================
-        # 4. OCR
-        # ====================================================
 
         print(
             "\n########################################"
@@ -4091,22 +4078,49 @@ async def analyze_full(
         )
 
 
-        try:
+        # Jika frontend sudah mengirim detected_text (misalnya hasil
+        # OCR browser/manual), gunakan langsung agar server tidak
+        # menjalankan Tesseract OCR kedua kalinya.
+        if detected_text and detected_text.strip():
 
-            ocr_text = (
-                extract_text_from_base64(
-                    image_base64
-                )
-            )
-
-        except Exception as error:
+            ocr_text = detected_text.strip()
 
             print(
-                "OCR ERROR:",
-                error,
+                "Browser/manual OCR tersedia."
             )
 
-            ocr_text = ""
+            print(
+                "Server OCR dilewati."
+            )
+
+            print(
+                "OCR SOURCE: browser/manual"
+            )
+
+        else:
+
+            try:
+                # Base64 hanya dibuat bila server OCR memang diperlukan.
+                image_base64 = (
+                    base64.b64encode(
+                        image_bytes
+                    ).decode("utf-8")
+                )
+
+                ocr_text = (
+                    extract_text_from_base64(
+                        image_base64
+                    )
+                )
+
+            except Exception as error:
+
+                print(
+                    "OCR ERROR:",
+                    error,
+                )
+
+                ocr_text = ""
 
 
         ocr_text = (
