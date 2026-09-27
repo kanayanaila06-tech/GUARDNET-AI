@@ -10,3 +10,6 @@ numpy
 joblib
 scikit-learn
 psycopg[binary]
+
+torch
+transformers
