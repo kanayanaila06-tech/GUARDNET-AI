@@ -6,7 +6,11 @@
 
 // ============================================================
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:8000"
+        : "https://guardnet-ai.vercel.app";
 
 let lastAnalysis = null;
 let reportsCache = [];
@@ -582,6 +586,7 @@ function setupImagePreview() {
         if (!file) {
             selectedContentFile = null;
             preview.style.display = "none";
+            preview.classList.add("hidden");
             preview.removeAttribute("src");
             return;
         }
@@ -589,6 +594,7 @@ function setupImagePreview() {
         if (!file.type.startsWith("image/")) {
             selectedContentFile = null;
             preview.style.display = "none";
+            preview.classList.add("hidden");
             showError("File harus berupa gambar.");
             return;
         }
@@ -602,6 +608,7 @@ function setupImagePreview() {
 
         reader.onload = (event) => {
             preview.src = event.target.result;
+            preview.classList.remove("hidden");
             preview.style.display = "block";
         };
 
