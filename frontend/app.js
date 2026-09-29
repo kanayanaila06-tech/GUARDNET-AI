@@ -12,6 +12,7 @@ let lastAnalysis = null;
 let reportsCache = [];
 let casesCache = [];
 let reportRefreshTimer = null;
+let selectedContentFile = null;
 
 // ============================================================
 // HELPER
@@ -567,112 +568,45 @@ function toggleSidebar() {
 // ============================================================
 // IMAGE PREVIEW
 // ============================================================
-
 function setupImagePreview() {
-
-    const input =
-
-        $("contentFile");
-
-
-    const preview =
-
-        $("preview");
-
-
+    const input = $("contentFile");
+    const preview = $("preview");
 
     if (!input || !preview) {
-
         return;
-
     }
 
-    input.addEventListener(
+    input.addEventListener("change", (event) => {
+        const file = event.target.files?.[0];
 
-        "change",
-
-        () => {
-
-
-            const file =
-
-                input.files?.[0];
-
-
-
-            if (!file) {
-
-
-                preview.style.display =
-
-                    "none";
-
-
-                preview.removeAttribute(
-
-                    "src"
-
-                );
-
-
-                return;
-
-            }
-
-            if (
-
-                !file.type.startsWith(
-
-                    "image/"
-
-                )
-
-            ) {
-
-                preview.style.display =
-
-                    "none";
-
-                showError(
-
-                    "File harus berupa gambar."
-
-                );
-
-                return;
-
-            }
-
-            hideError();
-
-            const reader =
-
-                new FileReader();
-
-            reader.onload =
-
-                (event) => {
-
-                    preview.src =
-
-                        event.target.result;
-
-                    preview.style.display =
-
-                        "block";
-
-                };
-
-            reader.readAsDataURL(
-
-                file
-
-            );
-
+        if (!file) {
+            selectedContentFile = null;
+            preview.style.display = "none";
+            preview.removeAttribute("src");
+            return;
         }
 
-    );
+        if (!file.type.startsWith("image/")) {
+            selectedContentFile = null;
+            preview.style.display = "none";
+            showError("File harus berupa gambar.");
+            return;
+        }
 
+        // Simpan file yang dipilih
+        selectedContentFile = file;
+
+        hideError();
+
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            preview.src = event.target.result;
+            preview.style.display = "block";
+        };
+
+        reader.readAsDataURL(file);
+    });
 }
 // ============================================================
 // FULL MULTIMODAL ANALYSIS
@@ -680,13 +614,11 @@ function setupImagePreview() {
 
 async function analyzeFullContent() {
 
-    const input =
-
-        $("contentFile");
+    const input = $("contentFile");
 
     const file =
-
-        input?.files?.[0];
+         selectedContentFile ||
+         input?.files?.[0];
 
     if (!file) {
 
